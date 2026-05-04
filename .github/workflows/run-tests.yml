@@ -137,12 +137,23 @@ jobs:
           fi
 
           # Run UI tests with increased timeout for slow CI environments
-          # We use --browser-channel chromium to ensure it uses the installed binary
+          # Set Playwright assertion timeout to 30s
+          export PLAYWRIGHT_TIMEOUT=30000
           pytest src/uis/pages/*/test_*_ui.py \
             --base-url http://localhost:${{ env.APP_PORT }} \
             --browser chromium \
-            --timeout 60000 \
+            --timeout 120 \
             --cov=questoes --cov=src --cov-append --cov-report=term-missing
 
-          # Cleanup
-          kill $APP_PID 2>/dev/null || true
+      - name: Print Server Log on Failure
+        if: failure()
+        run: |
+          echo "=== Application Server Log ==="
+          cat /tmp/app.log 2>/dev/null || echo "(no log file found)"
+          echo "=============================="
+
+      - name: Cleanup
+        if: always()
+        run: |
+          # Kill app if still running (use grep to be safe)
+          pkill -f "python app.py" || true
