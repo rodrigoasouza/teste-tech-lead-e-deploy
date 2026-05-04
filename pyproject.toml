@@ -30,6 +30,7 @@ dev = [
     "pytest-playwright",
     "pytest-base-url",
     "pytest-asyncio",
+    "pytest-timeout",
     "pytest-xdist",
 ]
 
@@ -50,7 +51,7 @@ packages = [
 testpaths = ["questoes", "src"]
 python_files = ["test_*.py"]
 addopts = "-v --cov=questoes --cov=src --cov-report=term-missing"
-required_plugins = ["pytest-cov"]
+required_plugins = ["pytest-cov", "pytest-playwright", "pytest-timeout"]
 
 [tool.ruff]
 line-length = 88
@@ -98,5 +99,6 @@ dev = [
     "pytest-cov>=7.1.0",
     "playwright",
     "pytest-playwright",
+    "pytest-timeout",
     "pytest-xdist",
 ]

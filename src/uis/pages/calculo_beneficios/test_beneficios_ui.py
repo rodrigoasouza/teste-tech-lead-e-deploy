@@ -46,6 +46,8 @@ def test_ui_erro_salario_abaixo_minimo_simples(page: Page):
 
 def test_ui_erro_periodo_invalido(page: Page):
     """Valida erro de demissão anterior à admissão."""
+    # Preenche um salário válido para que o validador de datas seja alcançado
+    page.locator('input[aria-label="Salário Base"]').fill("3000")
     page.locator('input[aria-label="Admissão"]').fill("01/01/2024")
     page.locator('input[aria-label="Demissão"]').fill("01/01/2023")
     page.keyboard.press("Enter")

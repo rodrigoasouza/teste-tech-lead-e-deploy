@@ -15,7 +15,7 @@ def test_date_input_valid_format():
 
 def test_date_input_invalid_format():
     input_comp = DateInput("Teste", value="2023-05-15")
-    with pytest.raises(ValueError, match="inválida. Use o formato DD/MM/AAAA"):
+    with pytest.raises(ValueError, match="inválida ou incompleta. Use DD/MM/AAAA"):
         input_comp.validate_and_get()
 
 

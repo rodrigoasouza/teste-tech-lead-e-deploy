@@ -141,7 +141,6 @@ jobs:
           pytest src/uis/pages/*/test_*_ui.py \
             --base-url http://localhost:${{ env.APP_PORT }} \
             --browser chromium \
-            --headless \
             --timeout 60000 \
             --cov=questoes --cov=src --cov-append --cov-report=term-missing
 

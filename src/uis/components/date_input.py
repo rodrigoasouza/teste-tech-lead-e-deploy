@@ -67,9 +67,13 @@ class DateInput(ui.input):
                 )
 
                 with ui.row().classes("w-full justify-end p-2 gap-2 bg-white"):
+                    def handle_cancel():
+                        self.menu.close()
+                        self.run_method("focus")
+
                     ui.button(
                         "Cancelar",
-                        on_click=lambda: (self.menu.close(), self.run_method("focus")),
+                        on_click=handle_cancel,
                     ).props("flat no-caps").classes("text-slate-500")
                     ui.button("Confirmar", on_click=self._confirm_date).props(
                         "flat no-caps"

@@ -3,7 +3,7 @@ from src.uis.validators import MAX_TEXTO_INPUT, ValidationError
 
 def validar_texto(valor: object) -> str:
     """Texto não-vazio, com limite de tamanho. (Obrigatório)"""
-    if valor is None or not str(valor).strip():
+    if valor is None or str(valor) == "":
         raise ValidationError("Por favor, insira um texto.")
 
     texto = str(valor)
