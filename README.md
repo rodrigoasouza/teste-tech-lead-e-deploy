@@ -4,6 +4,10 @@
 
 Este documento apresenta uma série de desafios de programação propostos pela e-DEPLOY como parte de um processo de avaliação técnica. Os problemas cobrem diferentes áreas: manipulação de strings, análise de sequências numéricas, probabilidade e lógica de jogos, além de cálculos de benefícios trabalhistas.
 
+### Interface Principal
+
+![Dashboard Principal](docs/screenshots/main.png)
+
 ---
 
 ## Questões Propostas
