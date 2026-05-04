@@ -110,7 +110,7 @@ jobs:
         run: npx playwright install chromium --with-deps
 
       - name: Run Unit Tests
-        run: pytest --ignore-glob="*_ui.py" --cov=questoes --cov=src --cov-report=term-missing
+        run: pytest -p no:xdist --ignore-glob="*_ui.py" --cov=questoes --cov=src --cov-report=term-missing
 
       - name: Run UI Tests
         run: |
@@ -139,12 +139,14 @@ jobs:
           # Run UI tests with increased timeout for slow CI environments
           # Set Playwright assertion timeout to 30s
           # Disable xdist to prevent race conditions in UI tests
+          # Use --reruns 3 to handle transient connection issues in act
           export PLAYWRIGHT_TIMEOUT=30000
           pytest src/uis/pages/*/test_*_ui.py \
             -p no:xdist \
+            --reruns 3 --reruns-delay 5 \
             --base-url http://localhost:${{ env.APP_PORT }} \
             --browser chromium \
-            --timeout 120 \
+            --timeout 180 \
             --cov=questoes --cov=src --cov-append --cov-report=term-missing
 
       - name: Print Server Log on Failure

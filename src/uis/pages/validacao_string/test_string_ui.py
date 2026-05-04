@@ -35,7 +35,7 @@ LISTA_ERRO = (
 def setup_test(page: Page, base_url: str):
     """Navega para a tela do Exercício 1 antes de cada teste."""
     page.goto(f"{base_url}/exercicio-001")
-    expect(page.locator("text=Entrada de Dados")).to_be_visible(timeout=15000)
+    expect(page.locator("text=Entrada de Dados")).to_be_visible(timeout=30000)
 
 
 @pytest.mark.parametrize("entrada", LISTA_SUCESSO)

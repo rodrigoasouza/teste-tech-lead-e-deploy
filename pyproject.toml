@@ -32,6 +32,7 @@ dev = [
     "pytest-asyncio",
     "pytest-timeout",
     "pytest-xdist",
+    "pytest-rerunfailures",
 ]
 
 [project.scripts]
