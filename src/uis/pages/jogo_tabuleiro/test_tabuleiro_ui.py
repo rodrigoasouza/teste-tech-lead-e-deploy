@@ -8,7 +8,7 @@ from playwright.sync_api import Page, expect
 def setup_test(page: Page, base_url: str):
     """Navega para a tela do Exercício 3 antes de cada teste."""
     page.goto(f"{base_url}/exercicio-003")
-    expect(page.locator("text=Jogo de Tabuleiro")).to_be_visible()
+    expect(page.locator("text=Jogo de Tabuleiro")).to_be_visible(timeout=15000)
 
 
 def test_ui_tabuleiro_sucesso_imediato(page: Page):

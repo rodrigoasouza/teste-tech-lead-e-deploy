@@ -12,7 +12,7 @@ from questoes.ex002_sequencia_numerica.test_sequencia_numerica import (
 def setup_test(page: Page, base_url: str):
     """Navega para a tela do Exercício 2 antes de cada teste."""
     page.goto(f"{base_url}/exercicio-002")
-    expect(page.locator("text=Sequência Numérica")).to_be_visible()
+    expect(page.locator("text=Sequência Numérica")).to_be_visible(timeout=15000)
 
 
 @pytest.mark.parametrize("posicao, esperado", VALORES_DO_ENUNCIADO[:4])

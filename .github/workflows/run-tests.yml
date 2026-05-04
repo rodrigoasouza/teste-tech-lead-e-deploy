@@ -138,8 +138,10 @@ jobs:
 
           # Run UI tests with increased timeout for slow CI environments
           # Set Playwright assertion timeout to 30s
+          # Disable xdist to prevent race conditions in UI tests
           export PLAYWRIGHT_TIMEOUT=30000
           pytest src/uis/pages/*/test_*_ui.py \
+            -p no:xdist \
             --base-url http://localhost:${{ env.APP_PORT }} \
             --browser chromium \
             --timeout 120 \
