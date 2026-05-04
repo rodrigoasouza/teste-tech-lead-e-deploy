@@ -1,0 +1,149 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.py'
+      - 'pyproject.toml'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - '**.py'
+      - 'pyproject.toml'
+      - '.github/workflows/**'
+  workflow_dispatch: {}
+
+jobs:
+  # Domínio 1: Qualidade e Estilo de Código
+  lint:
+    name: Code Quality (Ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Install Ruff
+        run: uv pip install --system ruff
+      - name: Run Ruff
+        run: ruff check .
+
+  # Domínio 2: Segurança
+  security:
+    name: Security Audit (pip-audit)
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Install dependencies
+        run: uv pip install --system .
+      - name: Run pip-audit
+        run: uv pip install --system pip-audit && pip-audit
+      - name: Run Bandit
+        run: uv pip install --system bandit && bandit -r . -x ./build,./tests,./questoes/**/test_*.py -s B101
+
+  # Domínio 3: Consistência de Tipos e Arquitetura
+  type-check:
+    name: Static Analysis (MyPy)
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Install dependencies
+        run: uv pip install --system -e ".[dev]"
+      - name: Run MyPy
+        run: mypy .
+
+  # Domínio 4: Validação Funcional (Unidade & Tela)
+  test:
+    name: Functional Tests (Unit & UI)
+    needs: [lint, type-check, security]
+    runs-on: ubuntu-latest
+    env:
+      APP_PORT: 8080
+      GITHUB_ACTIONS: "true"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Cache Playwright Browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install dependencies
+        run: uv pip install --system -e ".[dev]"
+
+      - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: Run Unit Tests
+        run: pytest --ignore-glob="*_ui.py" --cov=questoes --cov=src --cov-report=term-missing
+
+      - name: Run UI Tests
+        run: |
+          # Start server in the background
+          nohup python app.py > /tmp/app.log 2>&1 &
+          APP_PID=$!
+          echo "Started app.py with PID $APP_PID"
+
+          # Wait for server to be ready (muted output)
+          for i in {1..30}; do
+            if curl -s -o /dev/null http://localhost:${{ env.APP_PORT }}; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 2
+          done
+
+          # Fail explicitly if server never started
+          if ! curl -sf -o /dev/null http://localhost:${{ env.APP_PORT }}; then
+            echo "::error::Server failed to start. App log:"
+            cat /tmp/app.log 2>/dev/null || echo "(no log file found)"
+            exit 1
+          fi
+
+          # Run UI tests with increased timeout for slow CI environments
+          # We use --browser-channel chromium to ensure it uses the installed binary
+          pytest src/uis/pages/*/test_*_ui.py \
+            --base-url http://localhost:${{ env.APP_PORT }} \
+            --browser chromium \
+            --headless \
+            --timeout 60000 \
+            --cov=questoes --cov=src --cov-append --cov-report=term-missing
+
+          # Cleanup
+          kill $APP_PID 2>/dev/null || true

@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# AG Internal
+brain/
+gemini_backup/
+.claude/
+.actrc

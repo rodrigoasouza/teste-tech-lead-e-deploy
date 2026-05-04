@@ -1,0 +1,102 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "teste-tech-lead-e-deploy"
+version = "0.1.0"
+description = "Exercícios de validação de string e sequência numérica."
+requires-python = ">=3.10"
+dependencies = [
+    "nicegui>=3.11.0",
+    "pywebview>=5.0.0",
+    "requests",
+    "pydantic-settings",
+    "python-dotenv",
+    "httpx>=0.28.1",
+]
+
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0,<10.0",
+    "ruff",
+    "mypy",
+    "pytest-cov",
+    "pip-audit",
+    "bandit",
+    "requests",
+    "playwright",
+    "pytest-playwright",
+    "pytest-base-url",
+    "pytest-asyncio",
+    "pytest-xdist",
+]
+
+[project.scripts]
+tech-lead-suite = "app:main"
+
+[tool.setuptools]
+packages = [
+    "src", "src.uis", "src.uis.components", "src.infra",
+    "questoes",
+    "questoes.ex001_validacao_string",
+    "questoes.ex002_sequencia_numerica",
+    "questoes.ex003_jogo_tabuleiro",
+    "questoes.ex004_calculo_beneficios",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["questoes", "src"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=questoes --cov=src --cov-report=term-missing"
+required_plugins = ["pytest-cov"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+# E: Erros de sintaxe/estilo
+# F: Erros lógicos (Pyflakes)
+# W: Warnings de estilo (PEP8)
+# I: Ordenação de imports
+select = ["E", "F", "W", "I"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = "gemini_backup/"
+
+[tool.coverage.run]
+omit = [
+    "*/ui.py",
+    "src/uis/components/*",
+    "src/infra/*",
+    "app.py"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests", "questoes/**/test_*.py"]
+skips = ["B101"] # Ignorar assert (já usamos ruff/pytest para isso)
+
+[dependency-groups]
+dev = [
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=7.1.0",
+    "playwright",
+    "pytest-playwright",
+    "pytest-xdist",
+]
