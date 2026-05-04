@@ -76,4 +76,37 @@ pip install -e ".[dev]"
 
 # Roda todos os testes
 python -m pytest
-```
+```
+
+---
+
+## Esteira de Integração Contínua
+
+O projeto implementa uma **esteira CI/CD robusta** via GitHub Actions que valida a qualidade e integridade do código em 4 domínios complementares:
+
+### Componentes da Esteira
+
+1. **Qualidade e Estilo de Código** ([Ruff](https://docs.astral.sh/ruff/))
+   - Linting e formatação automática
+   - Garante consistência de estilo em toda a base de código
+
+2. **Segurança** (pip-audit + Bandit)
+   - Auditoria de vulnerabilidades em dependências
+   - Análise de riscos de segurança no código Python
+
+3. **Análise Estática de Tipos** (MyPy)
+   - Verificação de type hints
+   - Garante arquitetura e contratos de tipos
+
+4. **Validação Funcional** (Pytest + Playwright)
+   - Testes unitários com cobertura de código
+   - Testes de UI automatizados end-to-end
+
+### Fluxo de Execução
+
+A esteira é disparada automaticamente em:
+- **Push** para a branch `main`
+- **Pull Requests** contra a branch `main`
+- **Acionamento manual** via `workflow_dispatch`
+
+Os jobs executam em **paralelo otimizado**: lint e type-check são independentes, enquanto os testes aguardam a conclusão dos passos anteriores. Isso garante feedback rápido sem comprometer a qualidade.

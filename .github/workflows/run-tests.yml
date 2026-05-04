@@ -52,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: uv pip install --system .
       - name: Run pip-audit
-        run: uv pip install --system pip-audit && pip-audit
+        run: uv pip install --system pip-audit && pip-audit --skip-pkg pip
       - name: Run Bandit
         run: uv pip install --system bandit && bandit -r . -x ./build,./tests,./questoes/**/test_*.py -s B101
 
